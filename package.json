@@ -15,7 +15,12 @@
   "author": "Nicolás Russo",
   "license": "ISC",
   "dependencies": {
+    "connect-livereload": "^0.6.1",
     "express": "^4.17.1",
+    "livereload": "^0.9.3",
     "nodemon": "^2.0.12"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.5"
   }
 }

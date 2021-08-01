@@ -1,7 +1,11 @@
+let BUTTON_HEIGHT = 0;
 const BG_COLOR = [0];
 const FG_COLOR = [255, 255, 255];
-let BUTTON_HEIGHT;
-let currentStrokeWeight = 5;
+
+let style = {
+  strokeWeight: 5,
+  color: [255, 255, 255],
+};
 
 const HISTORY = [];
 const HISTORY_REF = {
@@ -24,33 +28,23 @@ let selectedTool = 0; // tools = 0: point, 1: cross, 2: line, 3: vector
 function windowResized() {
   BUTTON_HEIGHT = windowHeight / 10;
   resizeCanvas(windowWidth, windowHeight);
-  OBJECTS.buttons = createButtons(BUTTONQTY);
+  OBJECTS.buttons = Button.createButtons(BUTTONQTY);
 }
 
 let degI = 0;
 const OBJECTS = {
-  points: [], // [{x, y}]
-  crosses: [], // [{x, y, size}]
-  lines: [], // [{x1, y1, x2, y2}]
-  vectors: [], // [{x1, y1, x2, y2}]
-  // TODO: Change to [{x1, y1, x2, y2}], create vectorFromModuleDirection() (Vector.fromMD() or Vector.from()) ??
-  buttons: [], // [Button]
-  texts: [], // [{str, x, y}]
+  points: [],
+  crosses: [],
+  lines: [],
+  vectors: [],
+  buttons: [],
+  texts: [],
 };
-
-// TODO: BETTER IMPLEMENTATION! BUT EVEN BETTER WITH CLASSES!, NEXT UP
-
-/* const OBJECTS = {
-  points: { drawMethod: point, instances: [] },
-  crosses: { drawMethod: drawCross, instances: [] },
-  lines: { drawMethod: line, instances: [] },
-  vectors: { drawMethod: drawVector, instances: [] },
-}; */
 
 function setup() {
   BUTTON_HEIGHT = windowHeight / 10;
-  createCanvas(windowWidth, windowHeight);
-  OBJECTS.buttons = createButtons(BUTTONQTY);
+  let cnv = createCanvas(windowWidth, windowHeight);
+  OBJECTS.buttons = Button.createButtons(BUTTONQTY);
 
   background(...BG_COLOR);
   stroke(...FG_COLOR);
@@ -66,20 +60,14 @@ function keyPressed() {
       OBJECTS[toolToDelete].pop();
     }
   }
+  if (key === "S") {
+    saveCanvas("pgar-untitled", "jpg");
+  }
 
-  // Change strokeweight Keys: 1-5 Codes: 49-54
+  // Change strokeweight Keys: 1-9 Codes: 49-58
 
-  if (key === "1") {
-    currentStrokeWeight = 2.5;
-  }
-  if (key === "2") {
-    currentStrokeWeight = 5;
-  }
-  if (key === "3") {
-    currentStrokeWeight = 7.5;
-  }
-  if (key === "4") {
-    currentStrokeWeight = 10;
+  if ("1".charCodeAt(0) <= keyCode <= "9".charCodeAt(0)) {
+    style.strokeWeight = 2.5 * (keyCode - "1".charCodeAt(0) + 1);
   }
   /* console.log(`Key: ${key}\nKey code: ${keyCode}`); */
 }
@@ -87,26 +75,19 @@ function keyPressed() {
 function draw() {
   background(BG_COLOR);
 
-  strokeWeight(currentStrokeWeight);
-  /* -------- */
-
-  drawVector(...[width / 2, (height - 50) / 2], height / 4, degI);
-  degI++;
-
-  // OBJECTS.entries = [['points', {drawMethod: point, instances: [[2, 3], [3, 5]]}]]
-  /* OBJECTS.entries.forEach((type) => {}); */
+  strokeWeight(style.strokeWeight);
 
   OBJECTS.points.forEach((p) => {
-    point(p.x, p.y);
+    p.display();
   });
   OBJECTS.crosses.forEach((c) => {
-    drawCross(c.x, c.y, c.size);
+    c.display();
   });
   OBJECTS.lines.forEach((l) => {
-    line(l.x1, l.y1, l.x2, l.y2);
+    l.display();
   });
   OBJECTS.vectors.forEach((v) => {
-    drawVector(v.x, v.y, v.m, v.d);
+    v.display();
   });
   OBJECTS.buttons.forEach((button) => {
     button.display();
@@ -130,118 +111,35 @@ function mousePressed() {
   // tools = 0: point, 1: cross, 2: line, 3: vector
   switch (selectedTool) {
     case 0:
-      OBJECTS.points.push({ x: mouseX, y: mouseY });
+      OBJECTS.points.push(new Point(mouseX, mouseY, { ...style }));
       break;
     case 1:
-      OBJECTS.crosses.push({ x: mouseX, y: mouseY, size: random(20) + 10 });
+      OBJECTS.crosses.push(new Cross(mouseX, mouseY, 10, { ...style }));
       break;
     case 2:
-      OBJECTS.lines.push({
-        x1: mouseX,
-        y1: mouseY,
-        x2: mouseX + 20,
-        y2: mouseY + 20,
-      });
+      OBJECTS.lines.push(
+        new Line(mouseX, mouseY, mouseX + 30, mouseY + 30, { ...style })
+      );
       break;
     case 3:
-      const modulus = prompt("modulus");
-      const direction = prompt("direction");
-      OBJECTS.vectors.push({ x: mouseX, y: mouseY, m: modulus, d: direction });
+      const modulus = parseFloat(prompt("modulus"));
+      const direction = parseFloat(prompt("direction"));
+      if (
+        !modulus ||
+        !direction ||
+        typeof modulus !== "number" ||
+        typeof direction !== "number"
+      ) {
+        alert("Fail!");
+        console.log(modulus, direction);
+        return false;
+      }
+      OBJECTS.vectors.push(
+        new Vector(mouseX, mouseY, modulus, direction, 5, { ...style })
+      );
       break;
   }
   HISTORY.push(selectedTool);
+  /* console.log(OBJECTS); */
   return false;
-}
-
-/* ---------------------- */
-
-function giveAlert() {}
-
-function createButtons(qty) {
-  const colors = [
-    [164, 3, 111],
-    [4, 139, 168],
-    [22, 219, 147],
-    [239, 234, 90],
-    [242, 158, 76],
-  ]; // https://coolors.co/a4036f-048ba8-16db93-efea5a-f29e4c
-
-  let res = [];
-
-  for (let i = 0; i < qty; i++) {
-    res.push(
-      new Button(
-        (width / qty) * i,
-        height - BUTTON_HEIGHT,
-        width / qty,
-        BUTTON_HEIGHT,
-        colors[i]
-      )
-    );
-  }
-  return res;
-}
-
-function degToRad(deg) {
-  return (deg * Math.PI) / 180;
-}
-
-function drawCross(xPos, yPos, size) {
-  const x1 = Math.round(xPos - size / 2);
-  const x2 = Math.round(xPos + size / 2);
-  const y1 = Math.round(yPos - size / 2);
-  const y2 = Math.round(yPos + size / 2);
-
-  line(x1, y1, x2, y2);
-
-  line(x1, y2, x2, y1);
-}
-
-/* function drawCircle(xPos, yPos, size) {
-  circle(xPos, yPos, size);
-} */
-
-/* 
-function dV(x1, y1, x2, y2) {
-
-}
-
-function dVFM(xPos, yPos, modulus, direction) */
-
-function drawVector(xPos, yPos, modulus, direction) {
-  const arrowSide = 5;
-  const arrowHeight = ((Math.tan(degToRad(60)) * arrowSide) / 2) * 1.4;
-  const dir = degToRad(direction);
-  /* const x2 = xPos + Math.cos(dir) * modulus;
-  const y2 = yPos - Math.sin(dir) * modulus; */
-  const x2 = xPos + Math.cos(dir) * (modulus - arrowHeight);
-  const y2 = yPos - Math.sin(dir) * (modulus - arrowHeight);
-  const triX1 = x2 + (Math.sin(dir) * arrowSide) / 2;
-  const triY1 = y2 + (Math.cos(dir) * arrowSide) / 2;
-
-  const triX2 = x2 - (Math.sin(dir) * arrowSide) / 2;
-  const triY2 = y2 - (Math.cos(dir) * arrowSide) / 2;
-
-  const triX3 = x2 + Math.cos(dir) * arrowHeight;
-  const triY3 = y2 - Math.sin(dir) * arrowHeight;
-
-  line(xPos, yPos, x2, y2);
-  triangle(triX1, triY1, triX2, triY2, triX3, triY3);
-}
-
-class Button {
-  constructor(x1, y1, w, h, color) {
-    this.x1 = x1;
-    this.y1 = y1;
-    this.w = w;
-    this.h = h;
-    this.color = color;
-  }
-
-  display() {
-    stroke(...this.color);
-    fill(...this.color);
-    strokeWeight(0);
-    rect(this.x1, this.y1, this.w, this.h);
-  }
 }
