@@ -66,7 +66,7 @@ function keyPressed() {
 
   // Change strokeweight Keys: 1-9 Codes: 49-58
 
-  if ("1".charCodeAt(0) <= keyCode <= "9".charCodeAt(0)) {
+  if (49 <= keyCode && keyCode <= 58) {
     style.strokeWeight = 2.5 * (keyCode - "1".charCodeAt(0) + 1);
   }
   /* console.log(`Key: ${key}\nKey code: ${keyCode}`); */
