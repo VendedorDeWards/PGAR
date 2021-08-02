@@ -95,45 +95,5 @@ class Vector extends Figure {
   }
 }
 
-class Button {
-  constructor(x, y, w, h, color) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.color = color;
-  }
-
-  display() {
-    stroke(...this.color);
-    fill(...this.color);
-    strokeWeight(0);
-    rect(this.x, this.y, this.w, this.h);
-  }
-
-  static createButtons(qty) {
-    const colors = [
-      [164, 3, 111],
-      [4, 139, 168],
-      [22, 219, 147],
-      [239, 234, 90],
-      [242, 158, 76],
-    ]; // https://coolors.co/a4036f-048ba8-16db93-efea5a-f29e4c
-    //https://coolors.co/a4036f-ff5a5f-048ba8-16db93-8de969-efea5a-ffc53a-f29e4c-99edcc-e8d6cb
-
-    let res = [];
-
-    for (let i = 0; i < qty; i++) {
-      res.push(
-        new Button(
-          (width / qty) * i,
-          height - BUTTON_HEIGHT,
-          width / qty,
-          BUTTON_HEIGHT,
-          colors[i]
-        )
-      );
-    }
-    return res;
-  }
-}
+// Color pallete:
+//https://coolors.co/a4036f-ff5a5f-048ba8-16db93-8de969-efea5a-ffc53a-f29e4c-99edcc-e8d6cb

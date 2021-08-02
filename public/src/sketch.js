@@ -1,4 +1,3 @@
-let BUTTON_HEIGHT = 0;
 const BG_COLOR = [0];
 const FG_COLOR = [255, 255, 255];
 
@@ -21,14 +20,11 @@ const tools = {
   2: "line",
   3: "vector",
 };
-const BUTTONQTY = Object.keys(tools).length;
 
 let selectedTool = 0; // tools = 0: point, 1: cross, 2: line, 3: vector
 
 function windowResized() {
-  BUTTON_HEIGHT = windowHeight / 10;
-  resizeCanvas(windowWidth, windowHeight);
-  OBJECTS.buttons = Button.createButtons(BUTTONQTY);
+  /* resizeCanvas(windowWidth, windowHeight); */
 }
 
 let degI = 0;
@@ -37,14 +33,13 @@ const OBJECTS = {
   crosses: [],
   lines: [],
   vectors: [],
-  buttons: [],
   texts: [],
 };
 
 function setup() {
-  BUTTON_HEIGHT = windowHeight / 10;
-  let cnv = createCanvas(windowWidth, windowHeight);
-  OBJECTS.buttons = Button.createButtons(BUTTONQTY);
+  /* let cnv = createCanvas(windowWidth, windowHeight); */
+  let cnv = createCanvas((windowWidth / 4) * 3, windowHeight);
+  cnv.parent(document.getElementById("sketch"));
 
   background(...BG_COLOR);
   stroke(...FG_COLOR);
@@ -89,25 +84,12 @@ function draw() {
   OBJECTS.vectors.forEach((v) => {
     v.display();
   });
-  OBJECTS.buttons.forEach((button) => {
-    button.display();
-  });
 }
 
 function mousePressed() {
-  if (mouseY > height - BUTTON_HEIGHT) {
-    if (mouseX < width / BUTTONQTY) {
-      selectedTool = 0;
-    } else if (mouseX < (width / BUTTONQTY) * 2) {
-      selectedTool = 1;
-    } else if (mouseX < (width / BUTTONQTY) * 3) {
-      selectedTool = 2;
-    } else if (mouseX < (width / BUTTONQTY) * 4) {
-      selectedTool = 3;
-    }
-
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)
     return false;
-  }
+  /* console.log(mouseX, mouseY); */
   // tools = 0: point, 1: cross, 2: line, 3: vector
   switch (selectedTool) {
     case 0:
@@ -122,8 +104,8 @@ function mousePressed() {
       );
       break;
     case 3:
-      const modulus = parseFloat(prompt("modulus"));
-      const direction = parseFloat(prompt("direction"));
+      const modulus = parseFloat(prompt("Modulus:"));
+      const direction = parseFloat(prompt("Direction:"));
       if (
         !modulus ||
         !direction ||
@@ -143,3 +125,16 @@ function mousePressed() {
   /* console.log(OBJECTS); */
   return false;
 }
+
+document.getElementById("selectPoint").onclick = () => {
+  selectedTool = 0;
+};
+document.getElementById("selectCross").onclick = () => {
+  selectedTool = 1;
+};
+document.getElementById("selectLine").onclick = () => {
+  selectedTool = 2;
+};
+document.getElementById("selectVector").onclick = () => {
+  selectedTool = 3;
+};

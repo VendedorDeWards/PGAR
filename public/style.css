@@ -1,12 +1,41 @@
-body {
+html {
   height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
   padding: 0;
   margin: 0;
 }
 
 main {
   display: flex;
+  justify-content: flex-start;
+  width: 100vw;
+}
+
+#sketch {
+  max-height: 100vh;
+}
+
+#controls {
+  height: 100vh;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
+  justify-content: space-around;
+  box-sizing: border-box;
+
+  background: rgb(133, 64, 64);
+}
+
+#controls > button {
+  width: 20em;
+  height: 3em;
 }
